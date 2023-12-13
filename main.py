@@ -3,49 +3,115 @@ import re
 import time
 from functools import cmp_to_key
 from day2.day2 import day2func
+from getNextPipe import getNextPipe, printGrid
 
-f = open("day9/day9data.txt", "r")
-content = f.read().split("\n")
-sequences = []
-for line in content:
-    sequences.append([int(n) for n in line.split()])
+f = open("day10/day10data.txt", "r")
+grid = f.read().split("\n")
 
-# def nextSequence(sequence):
-#     print(sequence)
-#     # if last two values are 0, go back up the chain
-#     if len(sequence) == 1:
-#         return 0
-#     else:
-#         newSequence = [sequence[i + 1] - sequence[i] for i in range(0, len(sequence) - 1)]
-#         return nextSequence(newSequence) + sequence[-1]
+for line in range(0, len(grid)):
+    if "S" in grid[line]:
+        S = (line, grid[line].find("S"))
+
+distances = [["."] * len(i) for i in grid]
+
+def isNumber(stringNumber):
+    if 48 >= ord(stringNumber) <= 57:
+        return True
+    return False
+
+print("S location")
+print(S)
+distances[S[0]][S[1]] = "S"
+
+
+# first pass
+count = 0
+nextLocation = (S[0] + 1, S[1])
+direction = "S"
+
+while grid[nextLocation[0]][nextLocation[1]] != ".":
+    count += 1
+    distances[nextLocation[0]][nextLocation[1]] = count
+    direction, nextLocation = getNextPipe(grid, direction, nextLocation)
+
+    if distances[nextLocation[0]][nextLocation[1]] == "S":
+        print("broken")
+        break
+
+printGrid(distances)
+
+print("part 2")
+# count = 0
+# nextLocation = (S[0], S[1] + 1)
 #
-# res = 0
-# for sequence in sequences:
-#     rev = nextSequence(sequence)
-#     print(rev)
-#     res += rev
-# # print(nextSequence(sequence, 0))
-# print(res)
+# while grid[nextLocation[0]][nextLocation[1]] != ".":
+#     count += 1
+#     if distances[nextLocation[0]][nextLocation[1]] == count:
+#         print("half reached")
+#         break
+#
+#     distances[nextLocation[0]][nextLocation[1]] = count
+#     direction, nextLocation = getNextPipe(grid, direction, nextLocation)
+#
+#     if grid[nextLocation[0]][nextLocation[1]] == "S":
+#         break
+#
+# printGrid(distances)
+# print(count)
+#
+# enclosedTiles = 0
 
-def nextSequence(sequence):
-    print(sequence)
-    # if last two values are 0, go back up the chain
-    if all(y == 0 for y in sequence):
-        return 0
-    else:
-        newSequence = [sequence[i + 1] - sequence[i] for i in range(0, len(sequence) - 1)]
-        return sequence[0] - nextSequence(newSequence)
+# number of tiles enclosed by the loop
+# find a number, count tiles, then stop count when you find another number
+# how do we know that it isn't connected to the outside loop?
+# find a way to mark all the tiles that are connected to the outside - some recursive algorith?
+# then count the dots that haven't been converted
+
+print("Conversion")
+def convertDots(grid, dotLocation):
+    dotGrid = [(0,0)]
+
+    i = dotLocation[0]
+    j = dotLocation[1]
+    # printGrid(distances)
+
+    print("Current dot")
+    print(str(i) + " " + str(j))
+
+    # up
+    if i - 1 >= 0:
+        nextDot = grid[i - 1][j]
+        if nextDot == ".":
+            grid[i - 1][j] = "*"
+            # convertDots(grid, (i - 1, j))
+            dotGrid.append((i - 1, j))
 
 
+    # down
+    if i + 1 < len(grid):
+        nextDot = grid[i + 1][j]
+        if nextDot == ".":
+            grid[i + 1][j] = "*"
+            # convertDots(grid, (i + 1, j))
+            dotGrid.append((i + 1, j))
+    # left
+    if j - 1 >= 0:
+        nextDot = grid[i][j - 1]
+        if nextDot == ".":
+            grid[i][j - 1] = "*"
+            # convertDots(grid, (i, j - 1))
+            dotGrid.append((i, j - 1))
 
-test = [10, 13, 16, 21, 30, 45]
 
-print(nextSequence(test))
+    # right
+    if j + 1 < len(grid[0]):
+        nextDot = grid[i][j + 1]
+        if nextDot == ".":
+            grid[i][j + 1] = "*"
+            convertDots(grid, (i, j + 1))
 
-res = 0
-for sequence in sequences:
-    rev = nextSequence(sequence)
-    print(rev)
-    res += rev
-# print(nextSequence(sequence, 0))
-print(res)
+    return
+
+
+convertDots(distances, (0,0))
+printGrid(distances)
