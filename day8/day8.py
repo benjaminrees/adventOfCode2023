@@ -1,3 +1,5 @@
+import math
+
 f = open("day8data.txt", "r")
 content = f.read().split("\n")
 

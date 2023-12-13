@@ -46,5 +46,6 @@ def getNextPipe(grid, direction, pipeLocation):
 
 def printGrid(grid):
     for i in grid:
-        print("".join(str(j) for j in i))
+        # print("".join(str(j) for j in i))
+        print(i)
     print("")
